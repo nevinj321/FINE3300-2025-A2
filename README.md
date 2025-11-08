@@ -5,15 +5,6 @@ Assignment 2 - Python
 - Assignment 1 Repository ( FINE3300-2025-A1 ) (includes Assignment 2 Part A code)
 - Assignment 2 Repository ( FINE3300-2025-A2 ) (includes Assignment 2 Part B code)
 
-Part A: Loan Amortization and Payment Schedule
-- Expanded on my mortgage payment class from Assignment 1 and implemented a full loan amortization schedule using Python, NumPy, Pandas, and Matplotlib, as taught in class.
-
-- The code prompts the user for mortgage parameters, computes payment amounts for six payment options (monthly, semi-monthly, bi-weekly, weekly, rapid bi-weekly, rapid weekly), and creates a detailed amortization schedule for each frequency.
-
-- Each schedule is exported to a multi-sheet Excel file for professional output and analysis.
-
-- A single summary plot was created (using Matplotlib) showing how the loan balance declines over the mortgage term for all payment types, demonstrating the impact of accelerated schedules.
-
 Part B: Consumer Price Index (CPI) Analysis
 - Combined CPI data files for Canada and each province using Pandas, converting monthly data into a single, structured DataFrame for all 11 sources.
 
