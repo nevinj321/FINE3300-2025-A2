@@ -3,7 +3,7 @@ Assignment 2 - Python
 
 **Repository Information**
 - Assignment 1 Repository ( FINE3300-2025-A1 ) (includes Assignment 2 Part A code)
-- Assignment 2 Repository ( FINE3300-2025-A2 ) (includes Assignment 2 Part B code, along with a jupyter noteboook style of the code for legibility purposes)
+- Assignment 2 Repository ( FINE3300-2025-A2 ) (includes Assignment 2 Part B code)
 
 Part A: Loan Amortization and Payment Schedule
 - Expanded on my mortgage payment class from Assignment 1 and implemented a full loan amortization schedule using Python, NumPy, Pandas, and Matplotlib, as taught in class.
