@@ -21,6 +21,6 @@ Part B: Consumer Price Index (CPI) Analysis
 - Computed the annual change in the CPI for services, and reported which region experienced the highest inflation for services.
 
 
-Submission
-Code files, output Excel/PNG files, and write-up uploaded/submitted via Canvas per instructions.
+Submission includes 
+Python Code files, output Excel/PNG files, and write-up uploaded/submitted via Canvas per instructions.
 
