@@ -28,12 +28,11 @@ for file in files:
     
     # Extract jurisdiction abbreviation from filename (before first dot)
     jurisdiction = file.split(".")[0]
-    
     # Add jurisdiction column
     df["Jurisdiction"] = jurisdiction
     
     # Reshape from wide to long format using pd.melt()
-    # Converts month columns (24-Jan, 24-Feb, etc.) into rows
+    # Converts month columns (24-Jan, 24-Feb, etc) into rows
     df_long = pd.melt(df, 
                       id_vars=["Item", "Jurisdiction"], 
                       var_name="Month", 
@@ -41,7 +40,7 @@ for file in files:
     
     all_data.append(df_long)
 
-# Question 1: Combined all dataframes and included few entries to show the new data frame working
+# Question 1: Combine all dataframes and include few entries to show the new data frame working
 combined_df = pd.concat(all_data, ignore_index=True)
 combined_df = combined_df[["Item", "Month", "Jurisdiction", "CPI"]]
 print()
@@ -61,37 +60,51 @@ print("=" * 60)
 print(combined_df.head(12))
 print()
 
-# Question 3: calculated the Average month-to-month change for specific categories 
-print("Question 3: Average month-to-month change (%)")
+# Question 3: Average month-to-month change (%) by category
+print("Question 3: Average month-to-month change (%) by category")
 print("=" * 60)
-print("->>>Average change for Food, Shelter, and All-items excluding Food and Energy (all combined)")
+print("->>> Average change for Food, Shelter, and All-items excluding Food and Energy (each reported separately)")
 print()
 
-# Calculate Month to Month change across ALL rows (no filtering, no category distinction)
-combined_df = combined_df.sort_values(["Jurisdiction", "Month"])
-combined_df["Month_to_month_Change"] = combined_df.groupby("Jurisdiction")["CPI"].pct_change() * 100
+# Filtered for the 3 categories
+categories = ["Food", "Shelter", "All-items excluding food and energy"]
+filtered = combined_df[combined_df["Item"].isin(categories)].copy()
 
-# Grouped it by Jurisdiction and found average month-to-month change
-jurisdiction_avg_change = combined_df.groupby("Jurisdiction")["Month_to_month_Change"].mean().reset_index()
-# Rename to desired average column name and round
-jurisdiction_avg_change["Avg_Month_to_month_Change"] = jurisdiction_avg_change["Month_to_month_Change"].round(1)
-jurisdiction_avg_change = jurisdiction_avg_change[["Jurisdiction", "Avg_Month_to_month_Change"]]
-print(jurisdiction_avg_change)
+# Sorted and computed month-to-month percent change within each jurisdiction and item
+filtered = filtered.sort_values(["Jurisdiction", "Item", "Month"])
+filtered["Month_to_month_Change"] = filtered.groupby(["Jurisdiction", "Item"])["CPI"].pct_change() * 100
+
+# Calculate average percent change for each jurisdiction and each item
+category_avg_changes = (
+    filtered.groupby(["Jurisdiction", "Item"])["Month_to_month_Change"]
+    .mean()
+    .reset_index()
+)
+
+# Round to one decimal place
+category_avg_changes["Avg_Month_to_month_Change"] = category_avg_changes["Month_to_month_Change"].round(1)
+
+# Made a summary table that includes Jurisdiction, Food , Shelter and All-items excluding food and energy
+final_table = category_avg_changes.pivot(index="Jurisdiction", columns="Item", values="Avg_Month_to_month_Change")\
+    .reindex(columns=categories) \
+    .reset_index()
+
+print(final_table.to_string(index=False))
 print()
 
-
-# Question 4: Province with highest average change for the three categories from Question 3
+# Province with highest average change for the three categories from Question 3
 print("Question 4: Province with highest average change (in Food, Shelter, and All-items excluding food and energy)")
 print("=" * 60)
 
-# From our summary DataFrame created in Question 3, get the province with the maximum average
-# (idxmax returns the row index of the highest value)
-highest_row = jurisdiction_avg_change.loc[
-    jurisdiction_avg_change["Avg_Month_to_month_Change"].idxmax()
-]
-# Print the result with proper labelling as required by the assignment
-print(f"Jurisdiction: {highest_row['Jurisdiction']}")
-print(f"Average Change: {highest_row['Avg_Month_to_month_Change']}%")
+# Calculate average across the three category columns for each jurisdiction
+final_table["Mean_Avg_Change"] = final_table[["Food", "Shelter", "All-items excluding food and energy"]].mean(axis=1)
+
+# Get the row (jurisdiction) with the highest overall mean average change
+highest_value = final_table.loc[final_table["Mean_Avg_Change"].idxmax()]
+
+# Print the result with proper labelling as required
+print(f"Jurisdiction: {highest_value['Jurisdiction']}")
+print(f"Average Change (across the three categories): {highest_value['Mean_Avg_Change']:.1f}%")
 print()
 
 #  Question 5: Equivalent salary to $100,000 in Ontario (December 2024) 
@@ -99,14 +112,12 @@ print("Question 5: Equivalent salary to $100,000 in Ontario across all provinces
 print("=" * 60)
 
 # From the combined CPI data, filter for 'All-items' and December 2024 only
-# (The assignment wants to compare December 2024 purchasing power)
 # "Canada" is included in the table as a national reference for baseline purposes
 dec_2024 = combined_df[(combined_df["Month"] == "24-Dec") & 
                         (combined_df["Item"] == "All-items")].copy()
-# Get Ontario's All-items CPI (needed for scaling) 
+# Get Ontario's All-items CPI 
 ontario_cpi = dec_2024[dec_2024["Jurisdiction"] == "ON"]["CPI"].values[0]
 # For each province, calculate salary with equivalent purchasing power as $100,000 in Ontario
-# (classic cross-province CPI scaling formula)
 dec_2024["Equivalent_Salary"] = (100000 * dec_2024["CPI"] / ontario_cpi).round(2)
 # Print a table of all provinces, their December CPI, and the calculated equivalent salary
 result_q5 = dec_2024[["Jurisdiction", "CPI", "Equivalent_Salary"]].sort_values("Jurisdiction")
